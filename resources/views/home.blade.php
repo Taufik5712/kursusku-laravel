@@ -1,61 +1,45 @@
-<!doctype html>
-<html lang="id">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $siteName }}</title>
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-</head>
-<body>
+@extends('layouts.app')
 
-<header class="navbar">
-    <div class="container">
-        <div class="brand">
-            <img src="{{ asset('images/logo-kursusku.svg') }}" alt="Logo KursusKu" class="brand-logo">
-            <strong>{{ $siteName }}</strong>
+@section('title', 'Beranda - KursusKu')
+
+@section('content')
+<section class="hero-glass mb-5">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-7">
+            <span class="badge-accent mb-3">Kursus teknologi untuk mahasiswa</span>
+            <h1 class="display-5 fw-bold mt-3">Belajar lebih terarah bersama {{ $siteName }}</h1>
+            <p class="lead text-secondary">
+                Pilih kursus, cek ketersediaan kursi secara langsung, lalu isi formulir pendaftaran.
+            </p>
+            <a href="{{ route('enrollments.create') }}" class="btn btn-accent">Daftar Kursus</a>
         </div>
-        <nav>
-            <a href="{{ route('home') }}">Beranda</a>
-        </nav>
+        <div class="col-lg-5">
+            <img src="{{ asset('images/hero-kursus.jpg') }}" alt="Ilustrasi kelas {{ $siteName }}" class="img-fluid">
+        </div>
     </div>
-</header>
+</section>
 
-<main class="container">
-    <section class="hero">
-        <div>
-            <span class="badge-accent">Kursus teknologi untuk mahasiswa</span>
-            <h1>Bangun kemampuan web dari PHP sampai Laravel.</h1>
-            <p>{{ $siteName }} menyediakan latihan terarah untuk pemula.</p>
-        </div>
-        <img src="{{ asset('images/hero-kursus.jpg') }}" alt="Ilustrasi kelas {{ $siteName }}">
-    </section>
-
-    <section>
-        <h2>Kursus Pilihan</h2>
-        <div class="course-grid">
-            @foreach ($featured as $course)
-                @php
-                    $remaining = $course['quota'] - $course['registered'];
-                @endphp
-                <article class="card">
-                    <small>{{ $course['code'] }}</small>
+<section>
+    <h2 class="fw-bold mb-4">Kursus Pilihan</h2>
+    <div class="row g-4">
+        @foreach ($featured as $course)
+            @php
+                $remaining = $course['quota'] - $course['registered'];
+                $pillClass = $remaining <= 0 ? 'full' : ($remaining <= 3 ? 'low' : 'ok');
+                $pillText = $remaining <= 0 ? 'Kuota penuh' : $remaining . ' kursi tersisa';
+            @endphp
+            <div class="col-md-6 col-lg-4">
+                <article class="course-card">
+                    <span class="course-code">{{ $course['code'] }}</span>
                     <h3>{{ $course['name'] }}</h3>
                     <p>{{ $course['description'] }}</p>
-                    <div class="card-footer">
+                    <div class="d-flex justify-content-between align-items-center">
                         <strong>Rp {{ number_format($course['fee'], 0, ',', '.') }}</strong>
-                        <span>{{ $remaining }} kursi tersisa</span>
+                        <span class="seat-pill {{ $pillClass }}">{{ $pillText }}</span>
                     </div>
                 </article>
-            @endforeach
-        </div>
-    </section>
-</main>
-
-<footer class="site-footer">
-    <div class="container">
-        <p>&copy; {{ date('Y') }} {{ $siteName }} &mdash; Project Pemrograman Web III.</p>
+            </div>
+        @endforeach
     </div>
-</footer>
-
-</body>
-</html>
+</section>
+@endsection
