@@ -1,0 +1,31 @@
+KURSUSKU - TEST MATRIX PERTEMUAN 6
+Percabangan, Looping & Form Lanjutan (register.php -> process.php)
+====================================================================
+
+No  Skenario                              Hasil yang diharapkan                    Status
+--  ------------------------------------  ----------------------------------------  -------
+1   Mahasiswa, Web Dasar, 1 paket          Total Rp240.000                           [ ]
+2   Guru, PHP Dasar, 1 paket               Total Rp340.000                           [ ]
+3   Umum, Laravel Dasar, 1 paket           Total Rp500.000                           [ ]
+4   Mahasiswa, Web Dasar, 2 paket          Total Rp480.000                           [ ]
+5   Nama kosong                            Muncul pesan "Nama wajib diisi"           [ ]
+6   Email bukan format email               Muncul pesan "Format email tidak valid"   [ ]
+7   Tidak memilih minat                    Tidak ada warning; tampil "Belum memilih minat" [ ]
+8   Pilih 3 minat                          Ketiga pilihan tampil pada ringkasan      [ ]
+9   Metode offline                         Label "Tatap Muka"                        [ ]
+10  Metode hybrid                          Label "Hybrid"                            [ ]
+11  Buka process.php langsung dengan GET   Redirect ke register.php                  [ ]
+12  Tambah satu fasilitas di array         Item baru tampil otomatis melalui loop    [ ]
+
+Isi kolom Status dengan "PASS" atau "FAIL" setelah pengujian manual.
+Jika FAIL, jangan menambal hasil output - cari penyebab pada input, branching,
+loop, type conversion, atau helper, lalu perbaiki dan uji ulang.
+
+Format catatan detail (isi untuk test yang FAIL atau perlu dijelaskan):
+
+Test #  :
+Input   :
+Expect  :
+Actual  :
+Status  :
+Fix     :

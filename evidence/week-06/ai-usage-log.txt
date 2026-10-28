@@ -1,0 +1,18 @@
+KURSUSKU - AI USAGE LOG PERTEMUAN 6
+===================================
+Aturan panduan: AI boleh dipakai sebagai debugger dan tutor, bukan untuk
+membuat seluruh jawaban Tugas 3. Isi satu baris per pemakaian AI.
+Anda bertanggung jawab atas seluruh kode yang dikumpulkan; bagian yang tidak
+bisa Anda jelaskan dianggap belum Anda kuasai.
+
+No  Prompt / masalah          Saran AI                  Diterima / ditolak   Alasan + hasil test
+--  ------------------------  ------------------------  -------------------  ---------------------------
+1   (isi)                     (isi)                     (isi)                (isi)
+2
+3
+
+Contoh pengisian (hapus bila tidak dipakai):
+1   CSS halaman ringkasan     Menambah style untuk       Diterima             Tampilan process.php rapi;
+    process.php belum ada     class alert/summary/                            sudah saya baca satu per
+                              fee-breakdown di                                satu dan uji di browser
+                              week6.css
