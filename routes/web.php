@@ -3,12 +3,13 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\CourseController;
+use App\Models\Course;
 
 /*
 |--------------------------------------------------------------------------
 | Pertemuan 7 — Route, Controller, Blade
 |--------------------------------------------------------------------------
-| Landing page KursusKu dipindahkan dari closure sementara ke HomeController.
 */
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -16,8 +17,8 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 |--------------------------------------------------------------------------
 | Pertemuan 9 — Form pendaftaran (Blade + @csrf)
 |--------------------------------------------------------------------------
-| Data kursus untuk select masih berupa array sementara, selaras dengan
-| data pada HomeController (belum memakai database).
+| Daftar kursus pada form ini masih array sementara. Migrasi ke database
+| direncanakan pada tahap lanjutan (lihat CATATAN-MIGRASI.md Pertemuan 10).
 */
 Route::get('/pendaftaran', function () {
     $courses = [
@@ -46,28 +47,32 @@ Route::post('/pendaftaran/preview', function (Request $request) {
 
 /*
 |--------------------------------------------------------------------------
-| Pertemuan 9 — Route JSON dummy untuk jQuery Ajax
+| Pertemuan 10 — Resource route Course (Database & Eloquent)
 |--------------------------------------------------------------------------
-| Sisa kursi dihitung dari quota - registered, memakai data yang sama
-| dengan katalog di HomeController, lalu dikembalikan sebagai JSON.
+| Route::resource menyiapkan pola CRUD lengkap (index, create, store, show,
+| edit, update, destroy). Minggu ini hanya index(), create(), store() yang
+| diimplementasikan di CourseController; show/edit/update/destroy menjadi
+| materi pertemuan berikutnya.
 */
-Route::get('/courses/{course}/availability', function (string $course) {
-    $availability = [
-        'WEB-01' => ['course' => 'Web Dasar', 'quota' => 30, 'registered' => 12],
-        'PHP-01' => ['course' => 'PHP Dasar', 'quota' => 30, 'registered' => 18],
-        'PHP-02' => ['course' => 'PHP Lanjutan', 'quota' => 25, 'registered' => 24],
-        'LAR-01' => ['course' => 'Laravel Fundamental', 'quota' => 25, 'registered' => 25],
-        'DB-01'  => ['course' => 'MySQL Dasar', 'quota' => 20, 'registered' => 0],
-        'UI-01'  => ['course' => 'UI Web Dasar', 'quota' => 35, 'registered' => 9],
-    ];
+Route::resource('courses', CourseController::class);
 
-    abort_unless(isset($availability[$course]), 404);
-
-    $item = $availability[$course];
-    $remaining = $item['quota'] - $item['registered'];
-
+/*
+|--------------------------------------------------------------------------
+| Pertemuan 10 — Availability sekarang membaca dari database
+|--------------------------------------------------------------------------
+| Menggantikan endpoint dummy Pertemuan 9. URL sengaja dipertahankan sama
+| (/courses/{kode}/availability) agar resources/js/app.js dari Pertemuan 9
+| tidak perlu diubah. {course:code} memakai route-model binding Laravel
+| berdasarkan kolom 'code', bukan id numerik.
+|
+| Batas minggu ini: sisa kursi BELUM dihitung dari tabel Enrollment (relasi
+| itu baru dibangun pada pertemuan berikutnya). Untuk sementara field
+| 'remaining' menampilkan kuota penuh kursus tersebut.
+*/
+Route::get('/courses/{course:code}/availability', function (Course $course) {
     return response()->json([
-        'course'    => $item['course'],
-        'remaining' => $remaining,
+        'course'    => $course->name,
+        'remaining' => $course->quota,
+        'status'    => $course->status,
     ]);
 })->name('courses.availability');

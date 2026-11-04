@@ -267,3 +267,32 @@ a:hover {
         padding: 1.75rem;
     }
 }
+
+/* ==========================================================================
+   Pertemuan 10 — tabel Daftar Kursus (data dari MySQL)
+   ========================================================================== */
+
+.table-dark {
+    --bs-table-bg: transparent;
+    --bs-table-striped-bg: rgba(255, 255, 255, 0.03);
+    --bs-table-border-color: var(--border-color);
+    color: var(--text-main);
+}
+
+.table-dark thead th {
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.table-dark td {
+    border-color: var(--border-color);
+    vertical-align: middle;
+}
+
+.form-glass.p-0 {
+    overflow: hidden;
+}
