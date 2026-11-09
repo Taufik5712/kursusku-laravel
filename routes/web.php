@@ -47,12 +47,13 @@ Route::post('/pendaftaran/preview', function (Request $request) {
 
 /*
 |--------------------------------------------------------------------------
-| Pertemuan 10 — Resource route Course (Database & Eloquent)
+| Pertemuan 11 — Resource Course CRUD lengkap
 |--------------------------------------------------------------------------
-| Route::resource menyiapkan pola CRUD lengkap (index, create, store, show,
-| edit, update, destroy). Minggu ini hanya index(), create(), store() yang
-| diimplementasikan di CourseController; show/edit/update/destroy menjadi
-| materi pertemuan berikutnya.
+| Route::resource sudah mendaftarkan index, create, store, show, edit,
+| update, dan destroy. Show/edit/update memakai route model binding.
+| Validasi store/update ada di StoreCourseRequest dan UpdateCourseRequest.
+|
+| Jangan ubah migration. Schema courses tetap dari pertemuan 10.
 */
 Route::resource('courses', CourseController::class);
 
@@ -60,14 +61,9 @@ Route::resource('courses', CourseController::class);
 |--------------------------------------------------------------------------
 | Pertemuan 10 — Availability sekarang membaca dari database
 |--------------------------------------------------------------------------
-| Menggantikan endpoint dummy Pertemuan 9. URL sengaja dipertahankan sama
-| (/courses/{kode}/availability) agar resources/js/app.js dari Pertemuan 9
-| tidak perlu diubah. {course:code} memakai route-model binding Laravel
-| berdasarkan kolom 'code', bukan id numerik.
-|
-| Batas minggu ini: sisa kursi BELUM dihitung dari tabel Enrollment (relasi
-| itu baru dibangun pada pertemuan berikutnya). Untuk sementara field
-| 'remaining' menampilkan kuota penuh kursus tersebut.
+| URL dipertahankan sama (/courses/{kode}/availability) agar
+| resources/js/app.js dari Pertemuan 9 tidak perlu diubah.
+| {course:code} mencari Course lewat kolom code, bukan id.
 */
 Route::get('/courses/{course:code}/availability', function (Course $course) {
     return response()->json([

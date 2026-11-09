@@ -13,8 +13,8 @@
             </p>
             <a href="{{ route('enrollments.create') }}" class="btn btn-accent">Daftar Kursus</a>
         </div>
-        <div class="col-lg-5">
-            <img src="{{ asset('images/hero-kursus.jpg') }}" alt="Ilustrasi kelas {{ $siteName }}" class="img-fluid">
+        <div class="col-lg-5 text-center">
+            <img src="{{ asset('images/persona/hero-character.jpg') }}" alt="Karakter {{ $siteName }}" class="img-fluid hero-character">
         </div>
     </div>
 </section>

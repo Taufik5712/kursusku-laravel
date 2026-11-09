@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreCourseRequest;
+use App\Http\Requests\UpdateCourseRequest;
 use App\Models\Course;
-use Illuminate\Http\Request;
 
 class CourseController extends Controller
 {
@@ -26,33 +27,55 @@ class CourseController extends Controller
     }
 
     /**
-     * Menyimpan kursus baru ke database.
-     *
-     * Validasi masih diletakkan di controller (bukan Form Request) agar
-     * alur Milestone 10 mudah dipahami — refactor dilakukan pada tahap
-     * lanjutan sesuai catatan panduan.
+     * Menyimpan kursus baru.
+     * Aturan validasi ada di StoreCourseRequest — controller hanya
+     * menerima data yang sudah lolos pemeriksaan lewat validated().
      */
-    public function store(Request $request)
+    public function store(StoreCourseRequest $request)
     {
-        $data = $request->validate([
-            'code'        => ['required', 'max:20', 'unique:courses,code'],
-            'name'        => ['required', 'max:120'],
-            'description' => ['nullable', 'string'],
-            'fee'         => ['required', 'integer', 'min:0'],
-            'quota'       => ['required', 'integer', 'min:1', 'max:500'],
-            'start_date'  => ['required', 'date'],
-            'status'      => ['required', 'in:draft,open,closed'],
-        ]);
-
-        Course::create($data);
+        Course::create($request->validated());
 
         return to_route('courses.index')
             ->with('success', 'Kursus berhasil ditambahkan.');
     }
 
     /**
-     * show(), edit(), update(), destroy() belum diimplementasikan.
-     * Route::resource tetap mendaftarkan semuanya; bagian ini
-     * dilengkapi pada pertemuan berikutnya (Update/Delete).
+     * Halaman detail satu Course.
+     * Parameter Course $course diisi otomatis oleh route model binding.
      */
+    public function show(Course $course)
+    {
+        return view('courses.show', compact('course'));
+    }
+
+    /**
+     * Form koreksi. Nilai awal field berasal dari record yang sedang diedit.
+     */
+    public function edit(Course $course)
+    {
+        return view('courses.edit', compact('course'));
+    }
+
+    /**
+     * Menyimpan koreksi.
+     * Unique code mengabaikan record ini (lihat UpdateCourseRequest).
+     */
+    public function update(UpdateCourseRequest $request, Course $course)
+    {
+        $course->update($request->validated());
+
+        return to_route('courses.show', $course)
+            ->with('success', 'Kursus berhasil diperbarui.');
+    }
+
+    /**
+     * Menghapus satu Course. Dipanggil dari form POST + @method('DELETE').
+     */
+    public function destroy(Course $course)
+    {
+        $course->delete();
+
+        return to_route('courses.index')
+            ->with('success', 'Kursus berhasil dihapus.');
+    }
 }

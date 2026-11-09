@@ -3,7 +3,13 @@
 @section('title', 'Pendaftaran Kursus - KursusKu')
 
 @section('content')
-<div class="row justify-content-center">
+<div class="row justify-content-center g-4">
+    <div class="col-lg-3 d-none d-lg-block">
+        <div class="persona-art-frame">
+            <span class="persona-tag">Contact</span>
+            <img src="{{ asset('images/persona/contact-character.jpg') }}" alt="Karakter pendaftaran">
+        </div>
+    </div>
     <div class="col-lg-8">
         <div class="form-glass p-4 p-md-5">
             <h1 class="h3 mb-2 fw-bold">Pendaftaran Kursus</h1>
