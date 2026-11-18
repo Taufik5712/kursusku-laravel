@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\EnrollmentController;
 use App\Models\Course;
 
 /*
@@ -12,38 +12,6 @@ use App\Models\Course;
 |--------------------------------------------------------------------------
 */
 Route::get('/', [HomeController::class, 'index'])->name('home');
-
-/*
-|--------------------------------------------------------------------------
-| Pertemuan 9 — Form pendaftaran (Blade + @csrf)
-|--------------------------------------------------------------------------
-| Daftar kursus pada form ini masih array sementara. Migrasi ke database
-| direncanakan pada tahap lanjutan (lihat CATATAN-MIGRASI.md Pertemuan 10).
-*/
-Route::get('/pendaftaran', function () {
-    $courses = [
-        'WEB-01' => ['name' => 'Web Dasar'],
-        'PHP-01' => ['name' => 'PHP Dasar'],
-        'PHP-02' => ['name' => 'PHP Lanjutan'],
-        'LAR-01' => ['name' => 'Laravel Fundamental'],
-        'DB-01'  => ['name' => 'MySQL Dasar'],
-        'UI-01'  => ['name' => 'UI Web Dasar'],
-    ];
-
-    return view('enrollments.create', compact('courses'));
-})->name('enrollments.create');
-
-Route::post('/pendaftaran/preview', function (Request $request) {
-    $data = $request->validate([
-        'name'      => ['required', 'string', 'min:3', 'max:100'],
-        'email'     => ['required', 'email'],
-        'course_id' => ['required', 'string'],
-    ]);
-
-    return back()
-        ->with('success', 'Form lolos validasi. Database akan ditambahkan pada pertemuan berikutnya.')
-        ->withInput();
-})->name('enrollments.preview');
 
 /*
 |--------------------------------------------------------------------------
@@ -59,13 +27,33 @@ Route::resource('courses', CourseController::class);
 
 /*
 |--------------------------------------------------------------------------
-| Pertemuan 10 — Availability sekarang membaca dari database
+| Pertemuan 12 — Enrollment nyata (Participant + Course lewat Enrollment)
 |--------------------------------------------------------------------------
-| URL dipertahankan sama (/courses/{kode}/availability) agar
-| resources/js/app.js dari Pertemuan 9 tidak perlu diubah.
-| {course:code} mencari Course lewat kolom code, bukan id.
+| Menggantikan closure /pendaftaran sementara dari Pertemuan 9 (lihat
+| CATATAN-MIGRASI.md, bagian "Yang BELUM dimigrasikan" di Pertemuan 10 —
+| ini tahap lanjutan yang dimaksud).
+|
+| Route::resource(...)->only(['index','create','store']) otomatis membuat:
+|   GET  /enrollments/create  -> enrollments.create
+|   POST /enrollments         -> enrollments.store
+|   GET  /enrollments         -> enrollments.index  (laporan relasional)
+| update/destroy sengaja tidak dibuka di pertemuan ini — scope-nya hanya
+| create + store + report sesuai panduan.
 */
-Route::get('/courses/{course:code}/availability', function (Course $course) {
+Route::resource('enrollments', EnrollmentController::class)
+    ->only(['index', 'create', 'store']);
+
+/*
+|--------------------------------------------------------------------------
+| Pertemuan 10 — Availability membaca dari database
+|--------------------------------------------------------------------------
+| Diperbarui di Pertemuan 12: dropdown course pada form enrollment sekarang
+| mengirim course_id (foreign key numerik), bukan code lagi — karena
+| course_id itulah yang disimpan ke tabel enrollments. Supaya widget "cek
+| sisa kursi" di resources/js/app.js tetap jalan tanpa diubah, binding
+| kolom diganti dari {course:code} menjadi {course} (default = id).
+*/
+Route::get('/courses/{course}/availability', function (Course $course) {
     return response()->json([
         'course'    => $course->name,
         'remaining' => $course->quota,

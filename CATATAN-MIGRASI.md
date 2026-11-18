@@ -1,3 +1,67 @@
+# Catatan Migrasi: Pertemuan 11 → Pertemuan 12
+
+## Apa yang berubah dari project Pertemuan 11
+
+| File | Status | Perubahan |
+|---|---|---|
+| `routes/web.php` | Diperbarui | Closure `/pendaftaran` dan `/pendaftaran/preview` (sisa Pertemuan 9) **dihapus total**, diganti `Route::resource('enrollments', EnrollmentController::class)->only(['index','create','store'])`. Endpoint `courses.availability` diubah dari `{course:code}` menjadi `{course}` (default id) karena dropdown course di form enrollment sekarang mengirim `course_id`, bukan `code` |
+| `app/Models/Course.php` | Diperbarui | Ditambah relasi `enrollments()` (hasMany) dan `participants()` (belongsToMany lewat tabel `enrollments`). `$fillable` dan `casts()` lama tidak diubah |
+| `resources/views/enrollments/create.blade.php` | Ditulis ulang | Dulu: field teks bebas `name` + `email` + dropdown course (value = `code`). Sekarang: dropdown `participant_id` (ambil dari tabel `participants`) + dropdown `course_id` (value = `id`, hanya course berstatus `open`). Widget "cek sisa kursi" (jQuery Ajax di `resources/js/app.js`) **tidak diubah sama sekali** — otomatis tetap jalan karena hanya mengikuti `this.value` dari `<select id="course_id">` |
+| `resources/views/partials/navbar.blade.php` | Diperbarui | Ditambah link "Laporan Enrollment" ke `enrollments.index` |
+
+## File baru di Pertemuan 12
+
+| File Laravel | Asal | Keterangan |
+|---|---|---|
+| `database/migrations/..._create_participants_table.php` | Panduan Pertemuan 12 | Master data peserta: `name`, `email` (unique), `phone` (nullable) |
+| `database/migrations/..._create_enrollments_table.php` | Panduan Pertemuan 12 | Tabel penghubung; `participant_id` & `course_id` keduanya `foreignId()->constrained()->cascadeOnDelete()`, plus `unique(['participant_id','course_id'])` agar satu participant tidak bisa daftar dua kali ke course yang sama |
+| `app/Models/Participant.php` | — | `enrollments()` (hasMany) dan `courses()` (belongsToMany convenience) |
+| `app/Models/Enrollment.php` | — | `participant()` dan `course()` (keduanya belongsTo) |
+| `app/Http/Controllers/EnrollmentController.php` | `CourseController` (P10) sebagai pola dasar | `create()` mengambil participant + course berstatus `open`; `store()` validasi `exists` + `Rule::unique('enrollments')->where(...)` berpasangan; `index()` laporan dengan eager load `with(['participant','course'])` |
+| `resources/views/enrollments/index.blade.php` | `courses/index.blade.php` (P11) sebagai pola tabel | Laporan relasional: nama participant, email, course, tanggal mulai, status |
+| `database/seeders/ParticipantSeeder.php` | `CourseSeeder` (P10) sebagai pola | 3 data dummy (Alya, Bima, Citra), opsional, dipakai `firstOrCreate` agar aman dijalankan ulang |
+
+## Penyesuaian dari panduan generik ke project nyata
+
+Panduan Pertemuan 12 memakai contoh `Course::where('status', 'active')`.
+Project KursusKu **tidak punya** status `active` — enum `courses.status`
+sejak Pertemuan 10 adalah `draft`, `open`, `closed` (lihat migration
+`create_courses_table`). Semua kode di pertemuan ini memakai `'open'`
+sebagai padanan "course yang bisa didaftarkan", termasuk pada
+`EnrollmentController::create()` dan skrip cascade test di evidence.
+
+## Kenapa field `remaining` pada `courses.availability` masih kuota penuh?
+
+Masih sama seperti catatan Pertemuan 10: `remaining` belum dihitung dari
+`quota - jumlah_enrollment_terdaftar`. Sekarang relasi `Course::enrollments()`
+sudah ada, jadi penghitungan riil (`$course->quota - $course->enrollments()->count()`)
+bisa dikerjakan di pertemuan berikutnya tanpa migration tambahan.
+
+## Yang BELUM dimigrasikan
+- Halaman `edit`/`update`/`delete` untuk Enrollment belum dibuka
+  (`Route::resource(...)->only(['index','create','store'])`), sesuai
+  scope panduan Pertemuan 12.
+- Tidak ada form untuk menambah Participant baru lewat browser —
+  data participant saat ini hanya dari `php artisan tinker` atau
+  `ParticipantSeeder`.
+- `remaining` pada `courses.availability` dan landing page masih kuota
+  penuh, belum dikurangi jumlah enrollment aktif.
+
+## Konsep baru yang dipelajari
+- Migration dengan dua foreign key + `cascadeOnDelete()` dan
+  composite `unique()` pada kombinasi dua kolom
+- Relasi Eloquent `hasMany`/`belongsTo` dua arah, dan `belongsToMany`
+  konseptual lewat tabel pivot yang punya model sendiri (`Enrollment`),
+  bukan tabel pivot polos
+- `Rule::unique('table')->where(fn ($q) => ...)` untuk validasi unique
+  bersyarat pada kombinasi field (bukan `Rule::unique()->ignore()`
+  seperti update biasa)
+- Eager loading `with([...])` untuk menghindari N+1 query pada laporan
+  relasional
+- Efek `cascadeOnDelete()` diuji langsung lewat Tinker, bukan diasumsikan
+
+---
+
 # Catatan Migrasi: Pertemuan 9 → Pertemuan 10
 
 ## Apa yang berubah dari project Pertemuan 9

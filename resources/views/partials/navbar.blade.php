@@ -23,6 +23,9 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('enrollments.create') }}">Pendaftaran</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('enrollments.index') }}">Laporan Enrollment</a>
+                </li>
             </ul>
         </div>
     </div>
